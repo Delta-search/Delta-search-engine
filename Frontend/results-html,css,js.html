@@ -157,12 +157,12 @@
 
                 // Create a list of links for the category
                 const listElement = document.createElement('ul');
-                data[category].forEach(link => {
+                data[category].forEach(item => {
                     const listItem = document.createElement('li');
                     const linkElement = document.createElement('a');
-                    linkElement.href = link;
+                    linkElement.href = item.url;
                     linkElement.target = '_blank';
-                    linkElement.textContent = link;
+                    linkElement.textContent = item.title;  // Use title instead of URL for display
                     listItem.appendChild(linkElement);
                     listElement.appendChild(listItem);
                 });
