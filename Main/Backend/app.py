@@ -1,47 +1,36 @@
-import threading
 from flask import Flask, jsonify, request
-from flask_cors import CORS
-import notelinks_mechanism as notelinks
+from flask_cors import CORS  # Import CORS
+import notelinks_mechanism as notelinks  # Updated import
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Enable CORS for all routes
 
-# Store crawled data in memory (temporary, non-persistent)
-latest_results = {}
-
+# Route to handle search queries
 @app.route('/search', methods=['GET'])
 def search():
-    query = request.args.get('query')
+    query = request.args.get('query')  # Get the search query from the request
     if not query:
         return jsonify({'error': 'No query provided'}), 400
 
-    def crawl_and_store():
-        seed_urls = [
-            f"https://news.google.com/search?q={query.replace(' ', '+')}",
-            f"https://en.wikipedia.org/wiki/{query.replace(' ', '_')}"
-        ]
-        results = notelinks.deltabot_cli.run_deltabot(query, seed_urls)
-        categorized = notelinks.categorize_results(results)
-        latest_results[query.lower()] = categorized  # Store lowercase for consistency
-
-    # Start crawling in the background
-    threading.Thread(target=crawl_and_store).start()
-
-    return jsonify({'message': f'Crawling in progress for "{query}". Please check back soon.'}), 202
+    # Set up seed URLs for crawling based on the query
+    seed_urls = [
+        f"https://news.google.com/search?q={query.replace(' ', '+')}",
+        f"https://en.wikipedia.org/wiki/{query.replace(' ', '_')}"
+    ]
+    
+    # Run YogoolBot to fetch results
+    results = notelinks.yogoolbot_cli.run_yogoolbot(query, seed_urls)
 
 
-@app.route('/results', methods=['GET'])
-def results():
-    query = request.args.get('query')
-    if not query:
-        return jsonify({'error': 'No query provided'}), 400
+    # If no results found
+    if not results:
+        return jsonify({'error': 'No results found'}), 404
 
-    categorized = latest_results.get(query.lower())
-    if not categorized:
-        return jsonify({'message': f'Results for "{query}" not available yet.'}), 404
+    # Categorize using notelinks_mechanism
+    categorized = notelinks.categorize_results(results)
 
-    return jsonify(categorized)
+    return jsonify({'results': categorized})
 
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+# Start the Flask server
+if __name__ == "__main__":
+    app.run(debug=True)

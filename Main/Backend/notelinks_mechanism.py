@@ -1,4 +1,4 @@
-import deltabot_cli
+import yogoolbot_cli
 
 # -----------------------------
 # Categorize into Notelinks
@@ -64,7 +64,8 @@ def main():
     ]
     
     # Use the correct function to fetch the results
-    results = deltabot_cli.run_deltabot(query, seed_urls)  # Correct function call
+    results = yogoolbot_cli.run_yogoolbot(query, seed_urls)
+
     
     categorized = categorize_results(results)
 

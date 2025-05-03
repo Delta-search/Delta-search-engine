@@ -6,7 +6,7 @@ import urllib.robotparser as robotparser
 import time
 
 # === Configuration ===
-USER_AGENT = "DeltaBot/1.0"
+USER_AGENT = "YogoolBot/1.0"
 MAX_PAGES = 20
 DEPTH_LIMIT = 3
 
@@ -33,7 +33,7 @@ def can_fetch(url, user_agent=USER_AGENT):
             rp.set_url(robots_url)
             rp.read()
         except Exception as e:
-            print(f"[DeltaBot] ⚠️ Could not fetch robots.txt for {base_url}: {e}")
+            print(f"[YogoolBot] ⚠️ Could not fetch robots.txt for {base_url}: {e}")
             rp = None
         robots_cache[base_url] = rp
 
@@ -51,7 +51,7 @@ def fetch_page(url):
         if 'text/html' in response.headers.get('Content-Type', ''):
             return response.text, load_time
     except Exception as e:
-        print(f"[DeltaBot] ⚠️ Failed to fetch {url}: {e}")
+        print(f"[YogoolBot] ⚠️ Failed to fetch {url}: {e}")
     return None, 0
 
 def is_valid_url(url):
@@ -87,7 +87,7 @@ def estimate_content_quality(html, query):
     return min(1.0, score / 10)
 
 def calculate_quality_score(load_time, engagement, content_quality):
-    load_score = max(0, 1 - (load_time / 5))  # Assume load_time=0 since not measured
+    load_score = max(0, 1 - (load_time / 5))
     return 0.4 * load_score + 0.3 * engagement + 0.3 * content_quality
 
 def label_quality(score):
@@ -102,14 +102,14 @@ def label_quality(score):
     else:
         return "High Quality"
 
-# === DeltaBot Core Crawl + Rank Function ===
+# === YogoolBot Core Crawl + Rank Function ===
 
-def run_deltabot(query, seed_urls, max_pages=MAX_PAGES, depth_limit=DEPTH_LIMIT):
+def run_yogoolbot(query, seed_urls, max_pages=MAX_PAGES, depth_limit=DEPTH_LIMIT):
     visited = set()
     queue = deque([(url, 0) for url in seed_urls])
     results = {}
 
-    print(f"\n🔍 [DeltaBot] Starting crawl for query: '{query}'\n")
+    print(f"\n🔍 [YogoolBot] Starting crawl for query: '{query}'\n")
 
     while queue and len(results) < max_pages:
         url, depth = queue.popleft()
@@ -117,7 +117,7 @@ def run_deltabot(query, seed_urls, max_pages=MAX_PAGES, depth_limit=DEPTH_LIMIT)
             continue
 
         if not can_fetch(url):
-            print(f"[DeltaBot] 🚫 Disallowed by robots.txt: {url}")
+            print(f"[YogoolBot] 🚫 Disallowed by robots.txt: {url}")
             continue
 
         print(f"🌐 Crawling: {url} | Depth: {depth}")
@@ -149,7 +149,7 @@ def run_deltabot(query, seed_urls, max_pages=MAX_PAGES, depth_limit=DEPTH_LIMIT)
             if link not in visited:
                 queue.append((link, depth + 1))
 
-    print("\n✅ [DeltaBot] Crawl complete. Ranking results...\n")
+    print("\n✅ [YogoolBot] Crawl complete. Ranking results...\n")
     print_results(results)
     return results
 
@@ -168,14 +168,12 @@ def print_results(results):
 def main():
     query = input("Enter search query: ")
     
-    # Set up seed URLs for crawling based on the query
     seed_urls = [
         f"https://news.google.com/search?q={query.replace(' ', '+')}",
         f"https://en.wikipedia.org/wiki/{query.replace(' ', '_')}"
     ]
     
-    # Fetch and categorize results using the correct function
-    results = run_deltabot(query, seed_urls)
+    results = run_yogoolbot(query, seed_urls)
 
     if not results:
         print("\n⚠️ No relevant results found.")
