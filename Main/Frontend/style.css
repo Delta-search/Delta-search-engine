@@ -72,7 +72,7 @@ h1 {
 }
 
 #logo {
-    width: 100px;  /* Set width to 100px */
+    width: 200px;  /* Set width to 100px */
     height: 100px; /* Set height to 100px */
     object-fit: cover; /* Ensures the image fills the box without distortion */
 }
